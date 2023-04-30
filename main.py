@@ -10,15 +10,15 @@ def objective_function(x):
     T4 += 273.15
     T2, RH2 = point2(T4, Rh4)
     T2_GOAL, RH2_GOAL = 25 + 273.15, 0.55
-    return abs(T2 - T2_GOAL) + abs(RH2 - RH2_GOAL)
+    return abs(T2 - T2_GOAL)/T2_GOAL*100 + abs(RH2 - RH2_GOAL)/1*100
 
 
 # Define the bounds for the decision variables
-bounds = ((10, 100), (0, 1))
+bounds = ((10, 25), (0, 1))
 
 # Define the size of the population and the number of generations
-pop_size = 1000
-num_generations = 100
+pop_size = 100
+num_generations = 1000
 
 # Define the mutation rate and the crossover rate
 mutation_rate = 0.1
@@ -102,8 +102,9 @@ def point2(T4, RH4):
 population = generate_population(bounds, pop_size)
 
 # Iterate through the generations
-best_out_of_all = []
-best_fitness = 1000
+best = []
+best_fitness = 100
+
 for i in range(num_generations):
     # Evaluate the fitness of the population
     fitness = evaluate_fitness(population)
@@ -112,8 +113,9 @@ for i in range(num_generations):
     # Print the best individual and its fitness
     print(
         f"Generation {i}: Best Individual = {best_individual}, Fitness = {min(fitness)}")
-    if min(fitness) < best_fitness:
-        best_out_of_all = best_individual
+    if best_fitness > min(fitness):
+        best = best_individual
+        best_fitness = min(fitness)
     # Create a new population
     new_population = []
     # Perform selection, crossover, and mutation to create the new population
@@ -129,4 +131,5 @@ for i in range(num_generations):
     # Update the population
     population = new_population
 
-print(best_out_of_all)
+print(best, best_fitness)
+print(point2(best[0] + 273.15, best[1]))
