@@ -14,7 +14,7 @@ def objective_function(x):
 bounds = ((10, 25), (0, 1))
 
 pop_size = 100
-num_generations = 5000
+num_generations = 1000
 
 mutation_rate = 0.1
 crossover_rate = 0.8
@@ -58,28 +58,23 @@ def mutation(offspring, bounds, mutation_rate):
 
 def point2(T4, RH4):
     Q4 = 8.333333333
-    Qsr = 100  # kW
-    Qlr = 30  # kW
-    Qvent = 70  # kW
+    Qsr = 100
+    Qlr = 30
+    Qvent = 70
     T1 = 33.2 + 273.15
     T2_goal = 25 + 273.15
-    Qvent_s = 1.1 * 6000 * (T1 - T2_goal) * 0.58857777021102  # Btu/Hr
-    Qvent_s = Qvent_s * 2.931 * 10 ** -4  # kW
-    Qvent_l = Qvent - Qvent_s  # kW
-    Qst = Qsr + Qvent_s  # kW
-    Qlt = Qlr + Qvent_l  # kW
-
+    Qvent_s = 1.1 * 6000 * (T1 - T2_goal) * 0.58857777021102
+    Qvent_s = Qvent_s * 2.931 * 10 ** -4
+    Qvent_l = Qvent - Qvent_s
+    Qst = Qsr + Qvent_s
+    Qlt = Qlr + Qvent_l
     v4 = coolprop.HAPropsSI('V', 'T', T4, 'P', 101325, 'R', RH4)
     m4_dot = Q4/v4
-
     T2 = (Qst/m4_dot) + T4
-
     w4 = coolprop.HAPropsSI('W', 'T', T4, 'P', 101325, 'R', RH4)
     hlr = coolprop.HAPropsSI('H', 'T', T2, 'P', 101325, 'W', w4)/1000
     h2 = (Qlt/m4_dot) + hlr
     RH2 = coolprop.HAPropsSI('R', 'T', T2, 'P', 101325, 'H', h2*1000)
-    h4 = coolprop.HAPropsSI('H', 'T', T4, 'P', 101325, 'R', RH4)/1000
-
     return T2, RH2
 
 
