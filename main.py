@@ -11,13 +11,9 @@ def objective_function(x):
     return abs(T2 - T2_GOAL)/T2_GOAL*200**2 + abs(RH2 - RH2_GOAL)/1*100**2
 
 
-bounds = ((10, 25), (0, 1))
-
+bounds = ((10, 100), (0, 1))
 pop_size = 100
-num_generations = 1000
-
-mutation_rate = 0.1
-crossover_rate = 0.8
+num_generations = 2000
 
 
 def generate_population(bounds, pop_size):
@@ -39,7 +35,7 @@ def evaluate_fitness(population):
 
 def select_parents(population, fitness):
     parent_1, parent_2 = random.choices(
-        population, weights=[x**(-1) for x in fitness], k=2)
+        population, weights=[x**(-3) for x in fitness], k=2)
     return parent_1, parent_2
 
 
@@ -52,7 +48,12 @@ def crossover(parent_1, parent_2):
 def mutation(offspring, bounds, mutation_rate):
     for i in range(len(offspring)):
         if random.random() < mutation_rate:
-            offspring[i] = random.uniform(bounds[i][0], bounds[i][1])
+            offspring[i] += random.uniform(-0.1, 0.1)
+            while offspring[i] < bounds[i][0] or offspring[i] > bounds[i][1]:
+                offspring[i] += random.uniform(-0.1, 0.1)
+        else:
+            if random.random() < mutation_rate:
+                offspring[i] = random.uniform(bounds[i][0], bounds[i][1])
     return offspring
 
 
@@ -79,31 +80,21 @@ def point2(T4, RH4):
 
 
 population = generate_population(bounds, pop_size)
+printFormat = "Generation {}: Best Individual = {}, Fitness = {}"
 
 
-best = []
-best_fitness = 100
-
-for i in range(num_generations):
-
-    fitness = evaluate_fitness(population)
-
-    best_individual = population[np.argmin(fitness)]
-
-    print(
-        f"Generation {i}: Best Individual = {best_individual}, Fitness = {min(fitness)}")
-    if best_fitness > min(fitness):
-        best = best_individual
-        best_fitness = min(fitness)
-
+def generate_new_population(bounds, pop_size, mutation_rate):
     new_population = []
-
     while len(new_population) < pop_size:
         parent_1, parent_2 = select_parents(population, fitness)
         offspring = crossover(parent_1, parent_2)
         offspring = mutation(offspring, bounds, mutation_rate)
         new_population.append(offspring)
+    return new_population
 
-    population = new_population
 
-print(best, best_fitness)
+for i in range(num_generations):
+    fitness = evaluate_fitness(population)
+    best_individual = population[np.argmin(fitness)]
+    print(printFormat.format(i, best_individual, min(fitness)))
+    population = generate_new_population(bounds, pop_size, 0.1)
